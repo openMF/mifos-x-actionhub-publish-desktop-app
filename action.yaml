@@ -1,0 +1,105 @@
+name: KMP Publish Desktop App
+description: 'Publish the desktop app to the respective app stores'
+author: 'Mifos Initiative'
+branding:
+  icon: 'upload-cloud'
+  color: 'yellow'
+
+inputs:
+  desktop_package_name:
+    description: 'Name of the Android project module'
+    required: true
+  windows_signing_key:
+    description: 'Windows signing key'
+    required: false
+  windows_signing_password:
+    description: 'Windows signing password'
+    required: false
+  windows_signing_certificate:
+    description: 'Windows signing certificate'
+    required: false
+  macos_signing_key:
+    description: 'MacOS signing key'
+    required: false
+  macos_signing_password:
+    description: 'MacOS signing password'
+    required: false
+  macos_signing_certificate:
+    description: 'MacOS signing certificate'
+    required: false
+  linux_signing_key:
+    description: 'Linux signing key'
+    required: false
+  linux_signing_password:
+    description: 'Linux signing password'
+    required: false
+  linux_signing_certificate:
+    description: 'Linux signing certificate'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Java development environment
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'  # Use Zulu distribution of OpenJDK
+        java-version: '17'     # Use Java 17 version
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    # Cache Gradle dependencies and build outputs to speed up future builds
+    - name: Cache Gradle and build outputs
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          build
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
+
+    - name: Package Desktop App
+      shell: bash
+      run: ./gradlew packageReleaseDistributionForCurrentOS
+
+    # Upload Windows executables and installers
+    - name: Upload Windows Apps
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: Windows-Apps
+        path: |
+          **/*.exe
+          **/*.msi
+
+    # Upload Linux package
+    - name: Upload Linux App
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: Linux-App
+        path: '**/*.deb'
+
+    # Upload MacOS package
+    - name: Upload MacOS App
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: MacOS-App
+        path: '**/*.dmg'
+
+    - name: Publish Windows App
+      if: runner.os == 'windows-latest'
+      shell: bash
+      run: echo "Publishing Windows Desktop App"
+
+    - name: Publish Linux App
+      if: runner.os == 'ubuntu-latest'
+      shell: bash
+      run: echo "Publishing Linux Desktop App"
+
+    - name: Publish MacOS App
+      if: runner.os == 'macos-latest'
+      shell: bash
+      run: echo "Publishing MacOS Desktop App"
