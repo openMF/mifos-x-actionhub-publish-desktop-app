@@ -2,63 +2,76 @@
 
 ## Overview
 
-This GitHub Action is designed to package and publish desktop applications for multiple platforms (Windows, Linux, macOS) using Kotlin Multiplatform (KMP) and Gradle. It supports platform-specific signing and publishing processes.
+This GitHub Action automates the publishing process for desktop applications across multiple platforms (Windows, MacOS, Linux) using Kotlin Multiplatform.
 
-## Features
+## Workflow Visualization
 
-- Sets up Java 17 development environment using Zulu OpenJDK
-- Configures Gradle build system
-- Implements caching to speed up subsequent builds
-- Packages desktop application in release mode
-- Uploads platform-specific executables and installers as artifacts
-- Provides platform-specific publishing placeholders
+```mermaid
+flowchart TD
+    A[Start Action] --> B[Set up Java Environment\nJava 17 with Zulu OpenJDK]
+    B --> C[Setup Gradle]
+    C --> D[Cache Gradle Dependencies]
+    D --> E[Package Desktop App\npackageReleaseDistributionForCurrentOS]
+    E --> F{Determine OS}
+    F -->|Windows| G[Publish Windows App]
+    F -->|MacOS| H[Publish MacOS App]
+    F -->|Linux| I[Publish Linux App]
+    G --> J[End Action]
+    H --> J
+    I --> J
 
-## Inputs
+    style A fill:#e6f3ff,stroke:#0066cc
+    style J fill:#e6f3ff,stroke:#0066cc
+    style F fill:#f0f0f0,stroke:#333
+```
 
-### Required Inputs
-- `desktop_package_name`
-    - **Description**: Name of the Android project module
-    - **Required**: Yes
-    - **Type**: String
+## Inputs Configuration
 
-### Optional Platform Signing Inputs
+| Input                         | Description                         | Required | Type   | Default |
+|-------------------------------|-------------------------------------|----------|--------|---------|
+| `desktop_package_name`        | Name of the desktop project module  | **Yes**  | String | -       |
+| `windows_signing_key`         | Signing key for Windows app         | No       | String | -       |
+| `windows_signing_password`    | Signing password for Windows app    | No       | String | -       |
+| `windows_signing_certificate` | Signing certificate for Windows app | No       | String | -       |
+| `macos_signing_key`           | Signing key for MacOS app           | No       | String | -       |
+| `macos_signing_password`      | Signing password for MacOS app      | No       | String | -       |
+| `macos_signing_certificate`   | Signing certificate for MacOS app   | No       | String | -       |
+| `linux_signing_key`           | Signing key for Linux app           | No       | String | -       |
+| `linux_signing_password`      | Signing password for Linux app      | No       | String | -       |
+| `linux_signing_certificate`   | Signing certificate for Linux app   | No       | String | -       |
 
-#### Windows Signing
-- `windows_signing_key`
-    - **Description**: Windows signing key
-    - **Required**: Yes
-- `windows_signing_password`
-    - **Description**: Windows signing password
-    - **Required**: Yes
-- `windows_signing_certificate`
-    - **Description**: Windows signing certificate
-    - **Required**: Yes
+## Action Workflow Steps
 
-#### MacOS Signing
-- `macos_signing_key`
-    - **Description**: MacOS signing key
-    - **Required**: Yes
-- `macos_signing_password`
-    - **Description**: MacOS signing password
-    - **Required**: Yes
-- `macos_signing_certificate`
-    - **Description**: MacOS signing certificate
-    - **Required**: Yes
+1. **Java Environment Setup**
+  - Uses Zulu OpenJDK distribution
+  - Configures Java 17
 
-#### Linux Signing
-- `linux_signing_key`
-    - **Description**: Linux signing key
-    - **Required**: Yes
-- `linux_signing_password`
-    - **Description**: Linux signing password
-    - **Required**: Yes
-- `linux_signing_certificate`
-    - **Description**: Linux signing certificate
-    - **Required**: Yes
+2. **Gradle Configuration**
+  - Sets up Gradle build system
+  - Configures caching for dependencies
+
+3. **Dependency Caching**
+  - Caches Gradle caches and wrapper
+  - Speeds up subsequent builds
+  - Reduces build time and network usage
+
+4. **Desktop App Packaging**
+  - Runs `packageReleaseDistributionForCurrentOS`
+  - Builds app for current operating system
+
+5. **Platform-Specific Publishing**
+  - Conditional publishing based on runner OS
+  - Separate steps for Windows, MacOS, and Linux
 
 ## Usage Example
 
 ```yaml
+name: Publish Desktop App
+
+on:
+  release:
+    types: [created]
+
 jobs:
   publish-desktop-app:
     strategy:
@@ -81,41 +94,16 @@ jobs:
           linux_signing_certificate: ${{ secrets.LINUX_SIGNING_CERTIFICATE }}
 ```
 
-## Build and Publish Process
+## Best Practices
 
-The action performs the following steps:
-
-1. Set up Java 17 development environment using Zulu OpenJDK
-2. Configure Gradle build system
-3. Cache Gradle dependencies and build outputs
-4. Package desktop application in release mode using `./gradlew packageReleaseDistributionForCurrentOS`
-5. Upload platform-specific artifacts:
-    - Windows: `.exe` and `.msi` files
-    - Linux: `.deb` files
-    - macOS: `.dmg` files
-6. Placeholder publishing steps for each platform
-
-## Caching
-
-Gradle dependencies, wrapper, and build outputs are cached to improve build performance in subsequent runs. The cache key is generated based on the operating system and Gradle configuration files.
-
-## Prerequisites
-
-- A Kotlin Multiplatform project configured for desktop application development
-- Gradle wrapper in the project
-- Gradle task `packageReleaseDistributionForCurrentOS` defined for building desktop distributions
-- Platform-specific signing certificates and keys (if required)
-
-## Recommendations
-
-- Secure storage of signing keys and certificates using GitHub Secrets
-- Ensure Gradle build script includes configuration for release packaging
-- Test the action in your project's continuous integration workflow
-- Implement actual publishing logic in the platform-specific publish steps
+- Provide signing credentials securely using GitHub Secrets
+- Ensure consistent Java and Gradle versions
+- Test publishing on all target platforms
+- Verify signing configurations before release
 
 ## Troubleshooting
 
-- Verify Java 17 compatibility with your project
-- Check Gradle configuration and release packaging tasks
-- Review GitHub Actions logs for specific build or signing errors
-- Ensure all required signing credentials are correctly configured
+- Check Gradle logs for packaging issues
+- Verify signing credential formats
+- Ensure cross-platform compatibility of build scripts
+- Validate OS-specific build requirements
