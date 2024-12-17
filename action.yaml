@@ -3,7 +3,7 @@ description: 'Publish the desktop app to the respective app stores'
 author: 'Mifos Initiative'
 branding:
   icon: 'upload-cloud'
-  color: 'yellow'
+  color: 'purple'
 
 inputs:
   desktop_package_name:
@@ -62,32 +62,6 @@ runs:
     - name: Package Desktop App
       shell: bash
       run: ./gradlew packageReleaseDistributionForCurrentOS
-
-    # Upload Windows executables and installers
-    - name: Upload Windows Apps
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: Windows-Apps
-        path: |
-          **/*.exe
-          **/*.msi
-
-    # Upload Linux package
-    - name: Upload Linux App
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: Linux-App
-        path: '**/*.deb'
-
-    # Upload MacOS package
-    - name: Upload MacOS App
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: MacOS-App
-        path: '**/*.dmg'
 
     - name: Publish Windows App
       if: runner.os == 'windows-latest'
