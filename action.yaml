@@ -63,6 +63,32 @@ runs:
       shell: bash
       run: ./gradlew packageReleaseDistributionForCurrentOS
 
+    # Upload Windows executables
+    - name: Upload Windows Apps
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: desktop-app-${{ matrix.os }}
+        path: |
+          **/*.exe
+          **/*.msi
+
+    # Upload Linux package
+    - name: Upload Linux App
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: desktop-app-${{ matrix.os }}
+        path: '**/*.deb'
+
+    # Upload MacOS package
+    - name: Upload MacOS App
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: desktop-app-${{ matrix.os }}
+        path: '**/*.dmg'
+
     - name: Publish Windows App
       if: runner.os == 'windows-latest'
       shell: bash
