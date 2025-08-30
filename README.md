@@ -27,24 +27,25 @@ flowchart TD
 
 ## Inputs Configuration
 
-| Input                         | Description                         | Required | Type   | Default |
-|-------------------------------|-------------------------------------|----------|--------|---------|
-| `desktop_package_name`        | Name of the desktop project module  | **Yes**  | String | -       |
-| `windows_signing_key`         | Signing key for Windows app         | No       | String | -       |
-| `windows_signing_password`    | Signing password for Windows app    | No       | String | -       |
+| Input                         | Description                        | Required | Type   | Default |
+|-------------------------------|------------------------------------|----------|--------|---------|
+| `desktop_package_name`        | Name of the desktop project module | **Yes**  | String | -       |
+| `windows_signing_key`         | Signing key for Windows app        | No       | String | -       |
+| `windows_signing_password`    | Signing password for Windows app   | No       | String | -       |
 | `windows_signing_certificate` | Signing certificate for Windows app | No       | String | -       |
-| `macos_signing_key`           | Signing key for MacOS app           | No       | String | -       |
-| `macos_signing_password`      | Signing password for MacOS app      | No       | String | -       |
-| `macos_signing_certificate`   | Signing certificate for MacOS app   | No       | String | -       |
-| `linux_signing_key`           | Signing key for Linux app           | No       | String | -       |
-| `linux_signing_password`      | Signing password for Linux app      | No       | String | -       |
-| `linux_signing_certificate`   | Signing certificate for Linux app   | No       | String | -       |
+| `macos_signing_key`           | Signing key for MacOS app          | No       | String | -       |
+| `macos_signing_password`      | Signing password for MacOS app     | No       | String | -       |
+| `macos_signing_certificate`   | Signing certificate for MacOS app  | No       | String | -       |
+| `linux_signing_key`           | Signing key for Linux app          | No       | String | -       |
+| `linux_signing_password`      | Signing password for Linux app     | No       | String | -       |
+| `linux_signing_certificate`   | Signing certificate for Linux app  | No       | String | -       |
+| `java-version`                | Java version to use   | No       | String | 17      |
 
 ## Action Workflow Steps
 
 1. **Java Environment Setup**
   - Uses Zulu OpenJDK distribution
-  - Configures Java 17
+  - Configurable java version(default 17)
 
 2. **Gradle Configuration**
   - Sets up Gradle build system
@@ -80,7 +81,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: openMF/kmp-publish-desktop-app-action@v1.0.0
+      - uses: openMF/mifos-x-actionhub-publish-desktop-app@v1.0.1
         with:
           desktop_package_name: 'my-desktop-module'
           windows_signing_key: ${{ secrets.WINDOWS_SIGNING_KEY }}
@@ -92,6 +93,7 @@ jobs:
           linux_signing_key: ${{ secrets.LINUX_SIGNING_KEY }}
           linux_signing_password: ${{ secrets.LINUX_SIGNING_PASSWORD }}
           linux_signing_certificate: ${{ secrets.LINUX_SIGNING_CERTIFICATE }}
+          java-version: '21'
 ```
 
 ## Best Practices
